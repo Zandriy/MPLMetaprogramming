@@ -16,8 +16,6 @@
 #include <boost/mpl/push_front.hpp>
 #include <boost/mpl/push_back.hpp>
 
-#include <boost/static_assert.hpp>
-
 namespace boost { namespace mpl {
 
     struct none {}; // tag type to denote no element
