@@ -1,5 +1,5 @@
-#include "/home/azhabura/boost/boost_1_72_0/boost/mpl/long.hpp"
-#include "/home/azhabura/boost/boost_1_72_0/boost/mpl/alias.hpp"
+#include <boost/mpl/long.hpp>
+#include <boost/mpl/alias.hpp>
 #include <iostream>
 
 template< long n > struct binary
