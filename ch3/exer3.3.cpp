@@ -19,9 +19,7 @@ int main()
     namespace mpl = boost::mpl;
     using namespace mpl::placeholders;
 
-    int*** x;
+    using pointer4 = twice<add_pointer_f, twice<add_pointer_f, int>::type>::type;
 
-    twice<boost::add_pointer<_1>, twice<add_pointer_f, int>::type>::type q = &x;
-
-    BOOST_STATIC_ASSERT((boost::is_same<int****, decltype(q)>::value));
+    BOOST_STATIC_ASSERT((boost::is_same<int****, pointer4>::value));
 }

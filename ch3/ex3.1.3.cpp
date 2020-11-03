@@ -53,5 +53,5 @@ int main()
     quantity<float,length> len2( 2.0f );
 
     len1 = len1 + len2;
-    len1 = len2 + quantity<float,length>( 3.7f );
+    len1 = len2 - quantity<float,length>( 3.7f );
 }

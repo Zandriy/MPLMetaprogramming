@@ -54,9 +54,10 @@ quantity<T,D> operator+(quantity<T,D> x, quantity<T,OtherDimensions> y)
     return quantity<T,D>(x.value() + y.value());
 }
 
-template <class T, class D>
-quantity<T,D> operator-(quantity<T,D> x, quantity<T,D> y)
+template <class T, class D, class  OtherDimensions>
+quantity<T,D> operator-(quantity<T,D> x, quantity<T,OtherDimensions> y)
 {
+    BOOST_STATIC_ASSERT((mpl::equal<D, OtherDimensions>::type::value));
     return quantity<T,D>(x.value() - y.value());
 }
 
@@ -76,13 +77,7 @@ operator*(quantity<T,D1> x, quantity<T,D2> y)
     typedef typename mpl::transform<D1,D2,plus_f>::type dim;
     return quantity<T,dim>( x.value() * y.value() );
 }
-/*
-struct minus_f
-{
-    template <class T1, class T2>
-    struct apply: mpl::minus<T1,T2> {};
-};
-*/
+
 template <class T, class D1, class D2>
 quantity<T, typename mpl::transform<D1,D2,mpl::minus<_1,_2>>::type>
 operator/(quantity<T,D1> x, quantity<T,D2> y)
@@ -95,16 +90,16 @@ operator/(quantity<T,D1> x, quantity<T,D2> y)
 
 int main()
 {
+    using namespace sc;
+    quantity<float, mass> m(5.0f);
+    quantity<float, acceleration> a(9.83f);
 
-    {
-        using namespace sc;
-        quantity<float,mass> m(5.0f);
-        quantity<float,acceleration> a(9.83f);
+    quantity<float, force> f = m * a;
+    std::cout << "force = " << f.value() << "\n";
 
-        quantity<float,force> f = m * a;
-        std::cout << "force = " << f.value() << "\n";
+    f = f + m * a;
+    std::cout << "force = " << f.value() << "\n";
 
-        f = f + m * a;
-        std::cout << "force = " << f.value() << "\n";
-    }
+    f = f - m * a;
+    std::cout << "force = " << f.value() << "\n";
 }

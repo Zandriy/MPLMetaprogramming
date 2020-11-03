@@ -17,7 +17,7 @@ int main()
     namespace mpl = boost::mpl;
     using namespace mpl::placeholders;
 
-    typedef twice_twice<boost::add_pointer<_1>, int>::type pointer4;
+    using pointer4 = twice_twice<boost::add_pointer<_1>, int>::type;
 
     BOOST_STATIC_ASSERT((boost::is_same<int****, pointer4>::value));
 }
