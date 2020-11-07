@@ -2,6 +2,7 @@
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/mpl/identity.hpp>
 #include <type_traits>
+#include <boost/static_assert.hpp>
 #include <vector>
 
 namespace mpl = boost::mpl;
@@ -65,4 +66,6 @@ int main()
 {
     param_type<int>::type i = 10;
     param_type<std::vector<int>>::type v = {10, 20};
+    BOOST_STATIC_ASSERT((std::is_same<int, decltype(i)>::value));
+    BOOST_STATIC_ASSERT((std::is_same<const std::vector<int>&, decltype(v)>::value));
 }

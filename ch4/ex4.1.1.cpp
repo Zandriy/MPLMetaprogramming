@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <utility>
 #include <iterator>
+#include <boost/static_assert.hpp>
 #include <vector>
 #include <iostream>
 
@@ -62,4 +63,6 @@ int main()
 
     param_type<int>::type i = 10;
     param_type<std::vector<int>>::type v = {10, 20};
+    BOOST_STATIC_ASSERT((std::is_same<int, decltype(i)>::value));
+    BOOST_STATIC_ASSERT((std::is_same<const std::vector<int>&, decltype(v)>::value));
 }

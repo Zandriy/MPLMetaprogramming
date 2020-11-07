@@ -25,29 +25,38 @@ struct param_type
     , boost::add_reference<T const>>
 {};
 
-typedef mpl::vector<int, long, std::string> argument_types;
-typedef mpl::vector<int, long, const std::string&> result_types;
+struct StateLess {
+};
+
+typedef mpl::vector<int, long, std::string, StateLess> argument_types;
+typedef mpl::vector<int, long, const std::string&, StateLess> result_types;
+
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<argument_types, 0>::type, int>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<argument_types, 1>::type, long>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<argument_types, 2>::type, std::string>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<argument_types, 3>::type, StateLess>::value));
+
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<result_types, 0>::type, param_type<int>::type>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<result_types, 1>::type, param_type<long>::type>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<result_types, 2>::type, param_type<std::string>::type>::value));
+BOOST_STATIC_ASSERT((boost::is_same<mpl::at_c<result_types, 3>::type, param_type<StateLess>::type>::value));
 
 typedef mpl::transform <argument_types
    , mpl::if_<
-       mpl::or_<std::is_scalar<_1>, std::is_reference<_1>>
+       mpl::or_<std::is_scalar<_1>, boost::is_stateless<_1>, std::is_reference<_1>>
       , mpl::identity<_1>
       , boost::add_reference<std::add_const<_1>>
    >
 >::type param_types;
 
-struct StateLess {
-};
+typedef mpl::transform <argument_types
+   , param_type<_1> 
+>::type param_types_1;
+
+BOOST_STATIC_ASSERT((mpl::equal<param_types, result_types>::type::value));
+BOOST_STATIC_ASSERT((mpl::equal<param_types_1, result_types>::type::value));
+BOOST_STATIC_ASSERT((boost::is_same<param_types, param_types_1>::type::value));
 
 int main()
 {
-    param_type<int>::type i = 10;
-    param_type<std::vector<int>>::type v = {10, 20};
-    param_type<StateLess>::type s = StateLess{};
-
-    BOOST_STATIC_ASSERT(( boost::is_same< mpl::at_c<argument_types,0>::type, int>::value ));
-    BOOST_STATIC_ASSERT(( boost::is_same< mpl::at_c<argument_types,1>::type, long>::value ));
-    BOOST_STATIC_ASSERT(( boost::is_same< mpl::at_c<argument_types,2>::type, std::string>::value ));
-
-    BOOST_STATIC_ASSERT((mpl::equal<param_types, result_types>::type::value));
 }
