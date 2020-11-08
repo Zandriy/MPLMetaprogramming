@@ -16,16 +16,25 @@
 #include <boost/mpl/clear.hpp>
 #include <boost/mpl/push_front.hpp>
 #include <boost/mpl/push_back.hpp>
+#include <boost/mpl/insert.hpp>
+#include <type_traits>
 
 #include <boost/mpl/find.hpp>
 #include <boost/static_assert.hpp>
 
-namespace boost { namespace mpl {
+namespace boost
+{
+    namespace mpl
+    {
 
-    struct none {}; // tag type to denote no element
-    struct tiny_tag {}; // tag type for tag dispatching technique to allow for easy customization
+        struct none
+        {
+        }; // tag type to denote no element
+        struct tiny_tag
+        {
+        }; // tag type for tag dispatching technique to allow for easy customization
 
-    template <class T0 = none, class T1 = none, class T2 = none>
+        template <class T0 = none, class T1 = none, class T2 = none>
         struct tiny
         {
             typedef tiny_tag tag;
@@ -37,194 +46,215 @@ namespace boost { namespace mpl {
             //    ...
         };
 
-    template <class Tiny, class Pos>
+        template <class Tiny, class Pos>
         struct tiny_iterator
         {
             typedef mpl::random_access_iterator_tag category;
+            typedef Pos pos;
         };
 
-    template <class Tiny, class Pos>
-        struct next<tiny_iterator<Tiny,Pos>>
+        template <class Tiny, class Pos>
+        struct next<tiny_iterator<Tiny, Pos>>
         {
             typedef tiny_iterator<
-                Tiny
-                , typename mpl::next<Pos>::type
-                > type;
+                Tiny, typename mpl::next<Pos>::type>
+                type;
         };
 
-    template <class Tiny, class Pos>
-        struct prior<tiny_iterator<Tiny,Pos>>
+        template <class Tiny, class Pos>
+        struct prior<tiny_iterator<Tiny, Pos>>
         {
             typedef tiny_iterator<
-                Tiny
-                , typename mpl::prior<Pos>::type
-                > type;
+                Tiny, typename mpl::prior<Pos>::type>
+                type;
         };
 
-    template <class Tiny, int N> struct tiny_at;
+        template <class Tiny, int N>
+        struct tiny_at;
 
-    template <class Tiny>
-        struct tiny_at<Tiny,0>
+        template <class Tiny>
+        struct tiny_at<Tiny, 0>
         {
             typedef typename Tiny::t0 type;
         };
 
-    template <class Tiny>
-        struct tiny_at<Tiny,1>
+        template <class Tiny>
+        struct tiny_at<Tiny, 1>
         {
             typedef typename Tiny::t1 type;
         };
 
-    template <class Tiny>
-        struct tiny_at<Tiny,2>
+        template <class Tiny>
+        struct tiny_at<Tiny, 2>
         {
             typedef typename Tiny::t2 type;
         };
 
-    template <>
+        template <>
         struct at_impl<tiny_tag>
         {
             template <class Tiny, class N>
-                struct apply : tiny_at<Tiny, N::value>
-            {};
+            struct apply : tiny_at<Tiny, N::value>
+            {
+            };
         };
 
-    template <class Tiny, class Pos>
-        struct deref< tiny_iterator<Tiny,Pos> >
-        : at<Tiny,Pos>
+        template <class Tiny, class Pos>
+        struct deref<tiny_iterator<Tiny, Pos>>
+            : at<Tiny, Pos>
         {
         };
 
-    template <class Tiny, class Pos, class N>
-        struct advance<tiny_iterator<Tiny,Pos>,N>
+        template <class Tiny, class Pos, class N>
+        struct advance<tiny_iterator<Tiny, Pos>, N>
         {
             typedef tiny_iterator<
-                Tiny
-                , typename mpl::plus<Pos,N>::type
-                > type;
+                Tiny, typename mpl::plus<Pos, N>::type>
+                type;
         };
 
-    template <class Tiny, class Pos1, class Pos2>
+        template <class Tiny, class Pos1, class Pos2>
         struct distance<
-        tiny_iterator<Tiny,Pos1>
-        , tiny_iterator<Tiny,Pos2>
-        >
-        : mpl::minus<Pos2,Pos1>
-        {};
+            tiny_iterator<Tiny, Pos1>, tiny_iterator<Tiny, Pos2>>
+            : mpl::minus<Pos2, Pos1>
+        {
+        };
 
-    template <>
+        template <>
         struct begin_impl<tiny_tag>
         {
             template <class Tiny>
-                struct apply
-                {
-                    typedef tiny_iterator<Tiny,int_<0> > type;
-                };
+            struct apply
+            {
+                typedef tiny_iterator<Tiny, int_<0>> type;
+            };
         };
 
-    template <class T0, class T1, class T2>
+        template <class T0, class T1, class T2>
         struct tiny_size
-        : mpl::int_<3> {};
+            : mpl::int_<3>
+        {
+        };
 
-    template <class T0, class T1>
-        struct tiny_size<T0,T1,none>
-        : mpl::int_<2> {};
+        template <class T0, class T1>
+        struct tiny_size<T0, T1, none>
+            : mpl::int_<2>
+        {
+        };
 
-    template <class T0>
-        struct tiny_size<T0,none,none>
-        : mpl::int_<1> {};
+        template <class T0>
+        struct tiny_size<T0, none, none>
+            : mpl::int_<1>
+        {
+        };
 
-    template <>
-        struct tiny_size<none,none,none>
-        : mpl::int_<0> {};
+        template <>
+        struct tiny_size<none, none, none>
+            : mpl::int_<0>
+        {
+        };
 
-    template <>
+        template <>
         struct end_impl<tiny_tag>
         {
             template <class Tiny>
-                struct apply
-                {
-                    typedef tiny_iterator<
-                        Tiny
-                        , typename tiny_size<
-                        typename Tiny::t0
-                        , typename Tiny::t1
-                        , typename Tiny::t2
-                        >::type
-                        >
-                        type;
-                };
+            struct apply
+            {
+                typedef tiny_iterator<
+                    Tiny, typename tiny_size<
+                              typename Tiny::t0, typename Tiny::t1, typename Tiny::t2>::type>
+                    type;
+            };
         };
 
-    template <>
+        template <>
         struct size_impl<tiny_tag>
         {
             template <class Tiny>
-                struct apply
+            struct apply
                 : tiny_size<
-                  typename Tiny::t0
-                  , typename Tiny::t1
-                  , typename Tiny::t2
-                  >
-            {};
+                      typename Tiny::t0, typename Tiny::t1, typename Tiny::t2>
+            {
+            };
         };
 
-    template <>
+        template <>
         struct clear_impl<tiny_tag>
         {
             template <class Tiny>
-                struct apply : tiny<>
-            {};
+            struct apply : tiny<>
+            {
+            };
         };
 
-    template <>
+        template <>
         struct push_front_impl<tiny_tag>
         {
             template <class Tiny, class T>
-                struct apply
+            struct apply
                 : tiny<T, typename Tiny::t0, typename Tiny::t1>
-                {};
+            {
+            };
         };
 
-    template <class Tiny, class T, int N>
-        struct tiny_push_back;
+        template <class Tiny, class T, int N>
+        struct tiny_insert
+            : tiny<typename Tiny::t1, typename Tiny::t2, T>
+        {
+        };
 
-    template <class Tiny, class T>
-        struct tiny_push_back<Tiny,T,0>
-        : tiny<T,none,none>
-        {};
+        template <class Tiny, class T>
+        struct tiny_insert<Tiny, T, 0>
+            : tiny<T, typename Tiny::t0, typename Tiny::t1>
+        {
+        };
 
-    template <class Tiny, class T>
-        struct tiny_push_back<Tiny,T,1>
-        : tiny<typename Tiny::t0,T,none>
-        {};
+        template <class Tiny, class T>
+        struct tiny_insert<Tiny, T, 1>
+            : tiny<typename Tiny::t0, T, typename Tiny::t1>
+        {
+        };
 
-    template <class Tiny, class T>
-        struct tiny_push_back<Tiny,T,2>
-        : tiny<typename Tiny::t0,typename Tiny::t1,T>
-        {};
+        template <class Tiny, class T>
+        struct tiny_insert<Tiny, T, 2>
+            : tiny<typename Tiny::t0, typename Tiny::t1, T>
+        {
+        };
 
-    template <>
+        template <>
         struct push_back_impl<tiny_tag>
         {
             template <class Tiny, class T>
-                struct apply
-                : tiny_push_back<
-                  Tiny, T, size<Tiny>::value
-                  >
-            {};
+            struct apply
+                : tiny_insert<
+                      Tiny, T, size<Tiny>::value>
+            {
+            };
         };
 
-    template <>
+        template <>
         struct pop_front_impl<tiny_tag>
         {
             template <class Tiny>
-                struct apply
+            struct apply
                 : tiny<typename Tiny::t1, typename Tiny::t2, none>
-                {};
+            {
+            };
         };
 
-}}
+        template <>
+        struct insert_impl<tiny_tag>
+        {
+            template <class Tiny, class Pos, class T>
+            struct apply
+                : tiny_insert<
+                      Tiny, T, Pos::pos::value>
+            {
+            };
+        };
+
+    } // namespace mpl
+} // namespace boost
 
 /////////////////////// TESTING ///////////////////////
 
@@ -236,28 +266,26 @@ typedef mpl::tiny<int, char>::type S2;
 typedef mpl::tiny<int, char, float>::type S3;
 typedef mpl::tiny<char, float>::type S2_push_front;
 typedef mpl::tiny<float>::type S1_push_front;
+typedef mpl::tiny<char, float, bool>::type S3_push_back_overflow;
+typedef mpl::tiny<bool, int, char>::type S3_push_front_overflow;
 
-template<typename S>
+template <typename S>
 struct test_noIdentity
 {
     // pop the front element off S, unless it is empty
     using r1 = typename mpl::eval_if<
-        mpl::empty<S>
-        , mpl::identity<S>
-        , mpl::pop_front<S>
-        >::type;
+        mpl::empty<S>, mpl::identity<S>, mpl::pop_front<S>>::type;
 
     // likewise
     using r2 = typename mpl::eval_if<
-        mpl::empty<S>
-        , S                 // when invoked, S returns S
-        , mpl::pop_front<S>
-        >::type;
+        mpl::empty<S>, S // when invoked, S returns S
+        ,
+        mpl::pop_front<S>>::type;
 
     BOOST_STATIC_ASSERT((boost::is_same<r1, r2>::value));
 };
 
-template<typename S, typename F>
+template <typename S, typename F>
 struct test_iteration
 {
     using find_pos = typename mpl::find<S, F>::type;
@@ -267,9 +295,11 @@ struct test_iteration
     using end_pos = typename mpl::end<S>::type;
     using last_pos = typename mpl::prior<end_pos>::type;
 
-    struct unknown {};
+    struct unknown
+    {
+    };
     using unknown_pos = typename mpl::find<S, unknown>::type;
-   
+
     BOOST_STATIC_ASSERT((!boost::is_same<find_pos, end_pos>::value));
     BOOST_STATIC_ASSERT((boost::is_same<prior_pos, begin_pos>::value));
     BOOST_STATIC_ASSERT((boost::is_same<next_pos, last_pos>::value));
@@ -331,6 +361,23 @@ BOOST_STATIC_ASSERT((mpl::equal<S_POP_F0, S0>::value));
 using S_CLEAR = mpl::clear<S3>;
 BOOST_STATIC_ASSERT((mpl::size<S_CLEAR>::type::value == 0));
 BOOST_STATIC_ASSERT((mpl::equal<S_CLEAR, S0>::value));
+
+using S_PUSH4 = mpl::push_back<S3, bool>::type;
+BOOST_STATIC_ASSERT((mpl::size<S_PUSH4>::type::value == 3));
+BOOST_STATIC_ASSERT((mpl::equal<S_PUSH4, S3_push_back_overflow>::value));
+using S_PUSH_F4 = mpl::push_front<S3, bool>::type;
+BOOST_STATIC_ASSERT((mpl::size<S_PUSH_F4>::type::value == 3));
+BOOST_STATIC_ASSERT((mpl::equal<S_PUSH_F4, S3_push_front_overflow>::value));
+
+using pos_0 = mpl::find<S3, int>::type;
+using INSERT_0 = mpl::insert<S3, pos_0, bool>::type;
+BOOST_STATIC_ASSERT((mpl::equal<INSERT_0, typename mpl::tiny<bool, int, char>::type>::value));
+using pos_1 = mpl::find<S3, char>::type;
+using INSERT_1 = mpl::insert<S3, pos_1, bool>::type;
+BOOST_STATIC_ASSERT((mpl::equal<INSERT_1, typename mpl::tiny<int, bool, char>::type>::value));
+using pos_2 = mpl::find<S3, float>::type;
+using INSERT_2 = mpl::insert<S3, pos_2, bool>::type;
+BOOST_STATIC_ASSERT((mpl::equal<INSERT_2, typename mpl::tiny<int, char, bool>::type>::value));
 
 int main()
 {

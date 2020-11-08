@@ -17,4 +17,3 @@ BOOST_STATIC_ASSERT((!boost::is_same<long_pos, finish>::value));
 int main()
 {
 }
-

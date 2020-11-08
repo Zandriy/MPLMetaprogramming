@@ -204,6 +204,11 @@ namespace boost { namespace mpl {
         : tiny<typename Tiny::t0,typename Tiny::t1,T>
         {};
 
+    template <class Tiny, class T>
+        struct tiny_push_back<Tiny,T,3>
+        : tiny<typename Tiny::t1,typename Tiny::t2,T>
+        {};
+
     template <>
         struct push_back_impl<tiny_tag>
         {
@@ -236,6 +241,8 @@ typedef mpl::tiny<int, char>::type S2;
 typedef mpl::tiny<int, char, float>::type S3;
 typedef mpl::tiny<char, float>::type S2_push_front;
 typedef mpl::tiny<float>::type S1_push_front;
+typedef mpl::tiny<char, float, bool>::type S3_push_back_overflow;
+typedef mpl::tiny<bool, int, char>::type S3_push_front_overflow;
 
 template<typename S>
 struct test_noIdentity
@@ -331,6 +338,13 @@ BOOST_STATIC_ASSERT((mpl::equal<S_POP_F0, S0>::value));
 using S_CLEAR = mpl::clear<S3>;
 BOOST_STATIC_ASSERT((mpl::size<S_CLEAR>::type::value == 0));
 BOOST_STATIC_ASSERT((mpl::equal<S_CLEAR, S0>::value));
+
+using S_PUSH4 = mpl::push_back<S3, bool>::type;
+BOOST_STATIC_ASSERT((mpl::size<S_PUSH4>::type::value == 3));
+BOOST_STATIC_ASSERT((mpl::equal<S_PUSH4, S3_push_back_overflow>::value));
+using S_PUSH_F4 = mpl::push_front<S3, bool>::type;
+BOOST_STATIC_ASSERT((mpl::size<S_PUSH_F4>::type::value == 3));
+BOOST_STATIC_ASSERT((mpl::equal<S_PUSH_F4, S3_push_front_overflow>::value));
 
 int main()
 {

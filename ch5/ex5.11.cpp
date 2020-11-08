@@ -264,4 +264,3 @@ namespace boost { namespace mpl {
 int main()
 {
 }
-
